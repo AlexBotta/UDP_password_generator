@@ -3,6 +3,10 @@
 #include <string.h>
 #include <time.h>
 
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 1025
+#endif
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -89,13 +93,20 @@ int main() {
         }
         buffer[n] = '\0'; // Null-terminate the received message
 
-        // Log client information
+        // Log client information using gethostbyaddr
         char client_ip[INET_ADDRSTRLEN];
         if (inet_ntop_compat(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN) == NULL) {
             fprintf(stderr, "Error converting client IP\n");
             continue;
         }
-        printf("New request from %s:%d\n", client_ip, ntohs(client_addr.sin_port));
+
+        // Use gethostbyaddr to resolve the IP to a hostname
+        struct hostent *host = gethostbyaddr((const void *)&client_addr.sin_addr, sizeof(client_addr.sin_addr), AF_INET);
+        if (host != NULL) {
+            printf("New request from %s (%s:%d)\n", host->h_name, client_ip, ntohs(client_addr.sin_port));
+        } else {
+            printf("New request from %s (%s:%d)\n", client_ip, client_ip, ntohs(client_addr.sin_port));
+        }
 
         // Parse command and length
         char command = buffer[0];
