@@ -25,8 +25,14 @@ void print_help_menu() {
     printf(" m LENGTH : generate mixed password (lowercase letters and numbers)\n");
     printf(" s LENGTH : generate secure password (uppercase, lowercase, numbers, symbols)\n");
     printf(" u LENGTH : generate unambiguous secure password (no similar-looking characters)\n");
-    printf(" q        : quit application\n");
-    printf(" LENGTH must be between %d and %d characters\n", MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH);
+    printf(" q        : quit application\n\n");
+    printf(" LENGTH must be between %d and %d characters\n\n", MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH);
+    printf(" Ambiguous characters excluded in 'u' option:\n");
+    printf(" 0 O o (zero and letters O)\n");
+    printf(" 1 l I i (one and letters l, I)\n");
+    printf(" 2 Z z (two and letter Z)\n");
+    printf(" 5 S s (five and letter S)\n");
+    printf(" 8 B (eight and letter B)\n");
 }
 
 int main() {
@@ -81,6 +87,11 @@ int main() {
 
         buffer[strcspn(buffer, "\n")] = '\0'; // Remove newline character
 
+        if (strcmp(buffer, "h") == 0) {
+            print_help_menu();
+            continue;
+        }
+
         if (buffer[0] == CMD_QUIT) break;
 
         // Send request
@@ -96,6 +107,7 @@ int main() {
 
         printf("Password: %s\n", response);
     }
+
 
 #ifdef _WIN32
     closesocket(sockfd);
